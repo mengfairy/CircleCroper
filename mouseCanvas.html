@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body style="background: #000;">
+<canvas id="canvas" style="display: block;margin: 0 auto;border:1px solid #aaa;" >
+    你的浏览器不支持canvas!
+</canvas>
+<canvas id="offCanvas" style="display: none;margin: 0 auto;border:1px solid #aaa;" ></canvas>
+<script type="text/javascript">
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+
+    var offCanvas = document.getElementById('offCanvas');
+    var offContext = offCanvas.getContext('2d');
+
+    var image = new Image();
+    var isDown = false;
+    var scale;
+
+    window.onload = function(){
+
+        canvas.width = 1081;
+        canvas.height = 548;
+
+
+        //图片绘制
+        //1. context.drawImage(图片对象，dx起点，dy起点)
+        //2. context.drawImage(图片对象，dx画布的起点，dy画布的起点，dw绘制的宽，dh绘制的高)
+        //2. context.drawImage(图片对象，
+        //                      sx图片的起点，sy图片的起点，sw图片的宽，sh图片的高
+        //                      dx画布的起点，dy画布的起点，dw绘制的宽，dh绘制的高)
+        image.src='img.jpg';
+        image.onload = function(){
+            offCanvas.width = image.width*1.1;
+            offCanvas.height = image.height*1.1;
+            scale = offCanvas.width / canvas.width;
+
+            context.drawImage(image, 0, 0,canvas.width,canvas.height);
+            offContext.drawImage(image, 0, 0,offCanvas.width,offCanvas.height);
+            //context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        }
+
+        function windowToCanvas(x,y){
+            var bbox = canvas.getBoundingClientRect();
+            return {x:x-bbox.left,y:y-bbox.top}
+        }
+
+        canvas.onmousedown = function(e){
+            e.preventDefault();
+
+            var point = windowToCanvas(e.clientX, e.clientY);
+            //console.log(point.x,point.y);
+            isDown = true;
+            drawCanvasMagnifier(true,point);
+        }
+
+        canvas.onmousemove = function(e){
+            e.preventDefault();
+            if(isDown){
+                var point = windowToCanvas(e.clientX, e.clientY);
+                //console.log(point.x,point.y);
+                drawCanvasMagnifier(true,point);
+            }
+
+        }
+
+        canvas.onmouseup = function(e){
+            e.preventDefault();
+
+            isDown = false;
+            drawCanvasMagnifier(false);
+        }
+
+        canvas.onmouseout = function(e){
+            e.preventDefault();
+
+            isDown = false;
+            drawCanvasMagnifier(false);
+        }
+
+        function drawCanvasMagnifier(flag,point){
+            context.clearRect(0,0,canvas.width,canvas.width);
+            context.drawImage(image, 0, 0,canvas.width,canvas.height);
+            if(flag){
+                drawMagnifier(point);
+            }
+        }
+
+        function drawMagnifier(point){
+
+            var la_cx = point.x*scale;
+            var la_cy = point.y*scale;
+
+            var mr = 100;
+
+            var sx = la_cx-mr;
+            var sy = la_cy-mr;
+
+            var dx = point.x-mr;
+            var dy = point.y-mr;
+
+            context.save();
+
+            context.lineWidth=10.0;
+            context.strokeStyle = "#069";
+
+            context.beginPath();
+            context.arc(point.x,point.y,mr,0,Math.PI*2);
+
+            context.stroke();
+            context.clip();
+
+            context.drawImage(offCanvas,sx,sy,mr*2,mr*2,dx,dy,mr*2,mr*2);
+            context.restore();
+        }
+
+    }
+</script>
+</body>
+</html>
