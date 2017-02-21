@@ -6,7 +6,33 @@
 
 # Usage
 
-1.引入CSS和JS
+1.HTML
+```html
+<div id="elem-id">
+    <div class="circle-croper-layout">
+        <div class="croper-box">
+            <i></i>
+            <div class="canvas-wrap">
+                <canvas class="init-canvas" width="360" height="100"></canvas>
+
+                <canvas class="croper-canvas"></canvas>
+
+            </div>
+        </div>
+        <div class="btn-group">
+
+            <a href="javascript:void(0)" class="choose-button btn">
+                <span>选择图片</span>
+                <input title="123" accept="image/gif, image/jpeg, image/x-png" class="img-input" type="file" action-type="changeFile" node-type="file1" name="pic1">
+            </a>
+            <a href="javascript:void(0)" class="btn confirm"><span>确认</span></a>
+
+        </div>
+        <canvas class="result-canvas" width="180" height="180"></canvas>
+    </div>
+</div>
+```
+2.引入CSS和JS
 ```javascript
 <link rel="stylesheet" href="./css/circleCroper.css"/>
 
@@ -21,4 +47,3 @@ new CircleCroper(elem,options)
 	- elem:容器元素ID
 	- options:可选参数，包括：
 		callback：确认裁剪后回调函数，接收参数为图片base64码
-
