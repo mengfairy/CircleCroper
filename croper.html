@@ -166,7 +166,8 @@
                 var canvasInit = this.initCanvas,contextInit= this.initCxt,
                         canvasCroper = this.croperCanvas,contextCroper= this.croperCxt,
                         SX=0,SY= 0,SR= 0,isMove=false,isDown=false,downX= 0,downY= 0,CX= 0,CY= 0,isChange = false,imgSRC='';
-                $(this.elem).find('.img-input').change(function(){
+                $(this.elem).find('.img-input').change(function(event){
+                    if(!event.target.value){return false}//取消选择
                     var files = this.files[0],oFReader;
                     oFReader = new FileReader();
                     oFReader.readAsDataURL(files);
@@ -182,7 +183,7 @@
                     var image = new Image();
                     image.src = imgSRC;
                     image.onload = function(){
-                        //console.log(image.width,image.height);
+                        /*根据图片比例设置宽高*/
                         var scale = image.width/image.height;
                         if(scale>1){
                             image.width=360;
@@ -197,7 +198,7 @@
                             image.height= 360;
                             SR = image.width/2;
                         }
-
+                        /*设置canvas宽高=图片宽高*/
                         canvasInit.width = image.width,canvasCroper.width=image.width;
                         canvasInit.height = image.height,canvasCroper.height= image.height;
                         SX=canvasCroper.width/2,SY=canvasCroper.height/2;
@@ -221,7 +222,7 @@
                     contextCroper.arc(SX, SY, SR, 0, Math.PI * 2, true);
                     contextCroper.closePath();
                     contextCroper.fill();
-                    //缩放圆
+                    //缩放圆（三角函数算缩放圆坐标）
                     CX=SX+2*SR/3,CY=SY+Math.sqrt(SR*SR-4*SR*SR/9);
                     contextCroper.globalCompositeOperation = 'source-over';
                     contextCroper.beginPath();
@@ -231,7 +232,6 @@
                     contextCroper.closePath();
                     contextCroper.stroke();
                     contextCroper.fill();
-
                 }
 
                 /*监听鼠标移入事件*/
@@ -239,59 +239,75 @@
                     var bbox = canvasCroper.getBoundingClientRect();
                     var mx = e.clientX-bbox.left,my= e.clientY-bbox.top;
 
-                    var x= Math.abs(mx-SX),y=Math.abs(my-SY);
-                    var mr = Math.sqrt(x*x+y*y);//鼠标距圆心的X，Y求出斜边，如果斜边小于canvas画圆的半径，则在该圆的中心
+                    var x= Math.abs(mx-SX),y=Math.abs(my-SY);//鼠标在canvas中的x,y坐标
+                    var mr = Math.sqrt(x*x+y*y);//鼠标距croper圆心的距离，如果小于croper的半径，则在该圆的里
                     var cx = Math.abs(mx-CX),cy=Math.abs(my-CY);
-                    var cr = Math.sqrt(cx*cx+cy*cy);
+                    var cr = Math.sqrt(cx*cx+cy*cy);//鼠标距控制圆圆心距离，如果小于半径，则在控制圆中
 
                     if(cr<5 || isChange){
                         canvasCroper.style.cursor = 'nw-resize';
                         if(isChange){
                             var subX = mx-downX,subY = my-downY;
-                            if(((SY+SR)>=canvasCroper.height && subY>0) || ((SX+SR)>=canvasCroper.width && subX>0) || (SR<=30 && subX<0)){
+                            //判断是放大方向还是缩小方向('0':缩小，‘1’：放大，0：错误方向)
+                            var direction = (subX<0 && subY<0)? '0' : (subX>0 && subY>0)? '1' : 0;
+                            //错误方向、边界不做操作
+                            if(!direction || ((SY+SR)>=canvasCroper.height && direction=='1') || ((SX+SR)>=canvasCroper.width && direction=='1') || (SR<=30 && direction=='0')){
                                 return;
                             }
                             var dr = Math.sqrt(subX*subX+subY*subY);
-                            subX>0?dr=dr:dr=-dr;
-                            var rr=SR+dr,tx=SX+dr,ty=SY+dr;
+                            dr= direction=='1'? dr:-dr;
                             SR+=dr, SX+=dr,SY+=dr;
-                            //缩放过大
-                            if((SY+SR)>canvasCroper.height){
-                                var p = SY-SR;
-                                SR = (canvasCroper.height-p)/2;
-                                SY = SR+p;
-                            }
-                            if((SX+SR)>canvasCroper.width){
-                                var p = SX-SR;
-                                SR=(canvasCroper.width-p)/2;
-                                SX = SR+p;
-                            }
-                            //缩放过小
-                            if(SR<30){
-                                var p = 30-SR;
-                                SR=30;
-                                SX+=p,SY+=p;
+                            if(direction=='1'){//放大界值判断
+                                //缩放过大
+                                if((SY+SR)>canvasCroper.height){
+                                    var p = SY-SR;
+                                    var newSR = (canvasCroper.height-p)/2;
+                                    SX -= SR-newSR;
+                                    SY = newSR+p;
+                                    SR = newSR;
+                                }
+                                if((SX+SR)>canvasCroper.width){
+                                    var p = SX-SR;
+                                    var newSR = (canvasCroper.width-p)/2;
+                                    SY -= SR-newSR;
+                                    SX = newSR+p;
+                                    SR = newSR;
+                                }
+                            }else{//缩小界值判断
+                                if(SR<30){//缩放过小
+                                    var p = 30-SR;
+                                    SR=30;
+                                    SX+=p,SY+=p;
+                                }
                             }
                             drawClipArea();
                             downX=mx,downY=my;//将当前的x,y重新赋值给鼠标移动前的x,y
                         }
-                    }else if(mr<SR || isMove){
+                        return;
+                    }
+                    if(mr<SR || isMove){
                         canvasCroper.style.cursor = 'move';
                         if(isMove){
                             var subX = mx-downX,subY = my-downY;
                             var a = SX+subX,b=SY+subY;
                             SX=a,SY=b;
                             //判断坐标出界
-                            a<SR? SX=SR:SX=SX;
+                            SX = a<SR? SR:SX;
+                            SX = a>canvasCroper.width-SR? canvasCroper.width-SR:SX;
+                            SY = b<SR? SR:SY;
+                            SY = b>canvasCroper.height-SR? canvasCroper.height-SR:SY;
+
+                            /*a<SR? SX=SR:SX=SX;
                             a>canvasCroper.width-SR? SX=canvasCroper.width-SR:SX=SX;
                             b<SR? SY=SR:SY=SY;
-                            b>canvasCroper.height-SR?SY=canvasCroper.height-SR:SY=SY;
+                            b>canvasCroper.height-SR?SY=canvasCroper.height-SR:SY=SY;*/
                             drawClipArea();
                             downX=mx,downY=my;//将当前的x,y重新赋值给鼠标移动前的x,y
                         }
-                    }else{
-                        canvasCroper.style.cursor = 'auto';
+                        return;
                     }
+                    canvasCroper.style.cursor = 'auto';
+
                 }
                 //鼠标按下
                 canvasCroper.onmousedown = function(e){
@@ -305,9 +321,11 @@
                     var fx = Math.sqrt(x*x+y*y);//鼠标距圆心的X，Y求出斜边，如果斜边小于canvas画圆的半径，则在该圆的中心
                     if(cr<5){
                         isChange = true;
+                        isMove=false;
                         var bbox = canvasCroper.getBoundingClientRect();
                         downX = e.clientX-bbox.left,downY= e.clientY-bbox.top;
                     }else if(fx<SR){
+                        isChange = false;
                         isMove=true;
                         var bbox = canvasCroper.getBoundingClientRect();
                         downX = e.clientX-bbox.left,downY= e.clientY-bbox.top;
@@ -348,7 +366,6 @@
     });
     new CircleCroper('croper-test',{
         callback:function(img){
-            console.log(img)
             $("#croper-show").html("<img src='"+img+"' />");
         }
     })
