@@ -14,7 +14,17 @@
         }
         if(!elem || !document.getElementById(elem)){return false}
         this.elem = document.getElementById(elem);
-        this.options = options || {};
+        var defaults = {
+            size: 360
+        };
+        options = options || {};
+        for (var key in defaults) {
+            if (typeof options[key] == 'undefined') {
+                options[key] = defaults[key];
+            }
+        }
+        if(options.size && options.size<200){options.size=200};
+        this.options = options;
         this.initCircleCroper()
     };
     circleCroper.prototype = {
@@ -188,16 +198,16 @@
                 /*根据图片比例设置宽高*/
                 var scale = image.width/image.height;
                 if(scale>1){
-                    image.width=360;
+                    image.width=_this.options.size;
                     image.height = image.width/scale;
                     _this.baseData.SR = image.height*0.425;
                 }else if(scale<1){
-                    image.height=360;
+                    image.height=_this.options.size;
                     image.width = image.height*scale;
                     _this.baseData.SR = image.width*0.425;
                 }else if(scale==1){
-                    image.width = 360;
-                    image.height= 360;
+                    image.width = _this.options.size;
+                    image.height= _this.options.size;
                     _this.baseData.SR = image.width/2;
                 }
                 /*设置canvas宽高=图片宽高*/
@@ -232,7 +242,12 @@
                 CX:0,//contorl圆心X坐标
                 CY:0,//contorl圆心Y坐标
             };
-            this.eventBind();//帮定事件
+            //设置裁剪区宽高
+            var croperBox = this.elem.getElementsByClassName('croper-box')[0];
+            croperBox.style.width = this.options.size+'px';
+            croperBox.style.height = this.options.size+'px';
+
+            this.eventBind();//绑定事件
         }
     };
     return circleCroper;
