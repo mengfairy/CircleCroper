@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>demo</title>
+    <link rel="stylesheet" href="./css/circleCroper.css"/>
+    <style type="text/css">
+        #croper-show img{
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+<div id="croper-test">
+    <div class="circle-croper-layout">
+        <div class="croper-box">
+            <i></i>
+            <div class="canvas-wrap">
+                <canvas class="init-canvas" width="360" height="100"></canvas>
+
+                <canvas class="croper-canvas"></canvas>
+
+            </div>
+        </div>
+        <div class="btn-group">
+
+            <a href="javascript:void(0)" class="choose-button btn">
+                <span>选择图片</span>
+                <input title="123" accept="image/gif, image/jpeg, image/x-png" class="img-input" type="file" action-type="changeFile" node-type="file1" name="pic1">
+            </a>
+            <a href="javascript:void(0)" class="btn confirm"><span>确认</span></a>
+
+        </div>
+        <canvas class="result-canvas" width="180" height="180"></canvas>
+    </div>
+</div>
+
+<div id="croper-show">
+
+</div>
+
+<script type="text/javascript" src="./js/circleCroper.js"></script>
+<script type="text/javascript" src="./js/jquery-1.11.3.min.js"></script>
+<script type="text/javascript">
+    new CircleCroper('croper-test',{
+        callback:function(img){
+            $("#croper-show").html("<img src='"+img+"' />");
+        }
+    })
+</script>
+</body>
+</html>
