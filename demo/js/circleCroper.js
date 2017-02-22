@@ -15,7 +15,8 @@
         if(!elem || !document.getElementById(elem)){return false}
         this.elem = document.getElementById(elem);
         var defaults = {
-            size: 360
+            size: 360,
+            exportSize:180
         };
         options = options || {};
         for (var key in defaults) {
@@ -24,7 +25,9 @@
             }
         }
         if(options.size && options.size<200){options.size=200};
+        if(options.exportSize > options.size){options.exportSize=options.size};
         this.options = options;
+        console.log(options)
         this.initCircleCroper()
     };
     circleCroper.prototype = {
@@ -246,6 +249,9 @@
             var croperBox = this.elem.getElementsByClassName('croper-box')[0];
             croperBox.style.width = this.options.size+'px';
             croperBox.style.height = this.options.size+'px';
+            /*设置导出宽高*/
+            this.resultCanvas.width = this.options.exportSize;
+            this.resultCanvas.height = this.options.exportSize;
 
             this.eventBind();//绑定事件
         }
