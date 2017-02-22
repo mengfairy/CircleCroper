@@ -43,6 +43,8 @@
 <script type="text/javascript" src="./js/jquery-1.11.3.min.js"></script>
 <script type="text/javascript">
     new CircleCroper('croper-test',{
+        size:200,
+        exportSize:150,
         callback:function(img){
             $("#croper-show").html("<img src='"+img+"' />");
         }
