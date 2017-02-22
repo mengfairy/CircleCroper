@@ -13,7 +13,7 @@
         <div class="croper-box">
             <i></i>
             <div class="canvas-wrap">
-                <canvas class="init-canvas" width="360" height="100"></canvas>
+                <canvas class="init-canvas"></canvas>
 
                 <canvas class="croper-canvas"></canvas>
 
@@ -28,7 +28,7 @@
             <a href="javascript:void(0)" class="btn confirm"><span>确认</span></a>
 
         </div>
-        <canvas class="result-canvas" width="180" height="180"></canvas>
+        <canvas class="result-canvas"></canvas>
     </div>
 </div>
 ```
@@ -44,6 +44,8 @@
 new CircleCroper(elem,options)
 ```
 参数说明：
-	- elem:容器元素ID
-	- options:可选参数，包括：
-		callback：确认裁剪后回调函数，接收参数为图片base64码
+    	- elem:容器元素ID
+    	- options:可选参数，包括：
+			size:裁剪区大小、最小200。
+			exportSize:导出图片大小，不能大于裁剪区大小。
+			callback：确认裁剪后回调函数，接收参数为图片base64码。
