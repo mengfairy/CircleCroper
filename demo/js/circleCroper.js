@@ -30,8 +30,38 @@
         this.initCircleCroper()
     };
     CircleCroper.prototype = {
+        createHtml:function(){
+            var size = this.options.size,
+                exportSize = this.options.exportSize;
+            var content =
+                "<div class='circle-croper-layout'>"+
+                "<div class='croper-box' style='width: "+size+"px; height: "+size+"px;'>"+
+                "<i></i>"+
+                "<div class='canvas-wrap'>"+
+                "<canvas class='init-canvas' width='360' height='100'></canvas>"+
+
+                "<canvas class='croper-canvas'></canvas>"+
+
+                "</div>"+
+                "</div>"+
+                "<div class='btn-group'>"+
+
+                "<a href='javascript:void(0)' class='choose-button btn'>"+
+                "<span>选择图片</span>"+
+                "<input title='123' accept='image/gif, image/jpeg, image/x-png' class='img-input' type='file' action-type='changeFile' node-type='file1' name='pic1'>"+
+                "</a>"+
+                "<a href='javascript:void(0)' class='btn confirm'><span>确认</span></a>"+
+
+                "</div>"+
+                "<canvas class='result-canvas' width='"+exportSize+"' height='"+exportSize+"'></canvas>"+
+                "</div>";
+
+            this.elem.innerHTML = content;
+        },
         initCircleCroper:function(){
             var _this = this;
+            this.createHtml();
+
             /*图片Canvas*/
             this.initCanvas = this.elem.getElementsByClassName('init-canvas')[0];
             this.initCxt = this.initCanvas.getContext('2d');
@@ -73,6 +103,10 @@
                         image.width = _this.options.size;
                         image.height= _this.options.size;
                         SR = image.width/2;
+                    }
+                    if(image.width<100 || image.height<100){
+                        alert("图片尺寸太小，请重新选择图片！");
+                        return false;
                     }
                     /*设置canvas宽高=图片宽高*/
                     _this.initCanvas.width = image.width,_this.croperCanvas.width=image.width;
@@ -240,14 +274,6 @@
                     }
                 }
             }
-
-            //设置裁剪区宽高
-            var croperBox = this.elem.getElementsByClassName('croper-box')[0];
-            croperBox.style.width = this.options.size+'px';
-            croperBox.style.height = this.options.size+'px';
-            /*设置导出宽高*/
-            this.resultCanvas.width = this.options.exportSize;
-            this.resultCanvas.height = this.options.exportSize;
 
             /*绑定事件*/
             this.elem.getElementsByClassName('img-input')[0].addEventListener('change',imgUplaod);
