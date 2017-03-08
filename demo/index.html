@@ -12,21 +12,19 @@
 </head>
 <body>
 <div id="croper-test">
-    
+
 </div>
 
 <div id="croper-show">
 
 </div>
 
-<script type="text/javascript" src="./js/circleCroper.js"></script>
-<script type="text/javascript" src="./js/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="./js/circleCroper-2.1.js"></script>
 <script type="text/javascript">
     new CircleCroper('croper-test',{
         size:200,
-        exportSize:150,
         callback:function(img){
-            $("#croper-show").html("<img src='"+img+"' />");
+            document.getElementById('croper-show').innerHTML = "<img src='"+img+"' />";
         }
     })
 </script>
